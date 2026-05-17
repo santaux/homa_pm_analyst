@@ -1,0 +1,43 @@
+# Metabase running locally against the bundled SQLite analytics database.
+#
+# Start:
+#     docker compose up -d
+# Stop:
+#     docker compose down
+# Reset (nukes Metabase internal state but keeps the analytics DB intact):
+#     docker compose down -v && rm -rf mb-data
+#
+# Notes
+# -----
+# • The analytics SQLite file (homa_db.sqlite3) is mounted READ-ONLY so a
+#   misbehaving query in Metabase can never corrupt the dataset.
+# • The Metabase internal H2 database lives in ./mb-data — that's where
+#   admin user, dashboards and questions are persisted.
+# • To redistribute a fully-populated Metabase, archive the ./mb-data
+#   folder together with homa_pm_events.sqlite3 — recipients boot identical.
+
+services:
+  metabase:
+    image: metabase/metabase:v0.50.36
+    container_name: homa-metabase
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # Metabase internal DB (admin user, dashboards, questions)
+      - ./mb-data:/metabase-data
+      # Product-analytics DB — read-only so Metabase can never write to it
+      - ../homa_pm_events.sqlite3:/data/homa_pm_events.sqlite3:ro
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+      MB_DB_TYPE: h2
+      JAVA_TIMEZONE: UTC
+      # Pre-bake the analytics DB connection on first boot so the
+      # provisioning script doesn't have to discover paths
+      MB_SITE_NAME: "Homa PM Analytics"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "homa-pm-analytics": {
+      "command": ".venv/bin/python3",
+      "args": ["mcp/server.py"]
+    }
+  }
+}
