@@ -86,10 +86,21 @@ startup. You should see `homa-pm-analytics` listed under active MCP
 servers.
 
 For dashboards: open [http://localhost:3000](http://localhost:3000) and
-sign in:
+sign in with your PM account:
 
-- email: `admin@homa.local`
-- password: `HomaAdmin1!`
+- email: `pm@homa.local`
+- password: `HomaPm1!`
+
+This account can view and query everything but **cannot modify** the
+four canonical dashboards in the `Official` collection — they are the
+team's source of truth and protected against accidental edits. Charts
+you create yourself (whether via Metabase UI or via Claude+MCP) land in
+your own Personal Collection or in `Our analytics`, where you have full
+control.
+
+> **Admin access** is also available (`admin@homa.local` / `HomaAdmin1!`)
+> for changes to the canonical dashboards themselves, but day-to-day
+> work should stay on the PM account.
 
 ---
 

@@ -59,6 +59,12 @@ extracted yet.
 For Metabase: `docker compose up -d` from the `metabase/` directory. The
 chart-creation MCP tools require Metabase to be running.
 
+The MCP server logs into Metabase as the PM user (`pm@homa.local`), not
+the admin. That account has view-only access to the four canonical
+dashboards in the `Official` collection — chart-creation calls will
+therefore land in the PM's personal collection, never in `Official`.
+That is the desired behaviour.
+
 ---
 
 ## Database Overview

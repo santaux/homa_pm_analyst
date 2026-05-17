@@ -12,12 +12,16 @@ Design goals
   what HTTP code came back.
 - Session token cached in-process — multiple tool calls reuse one login.
 
+The MCP logs into Metabase as a PM-role user (not the admin) so charts
+it creates land in the PM's own collection and cannot accidentally
+modify the canonical dashboards in the protected 'Official' collection.
+
 Env overrides
 -------------
     MB_HOST            default http://localhost:3000
-    MB_ADMIN_EMAIL     default admin@homa.local
-    MB_ADMIN_PASSWORD  default HomaAdmin1!
-    MB_DB_NAME         default Homa Energy
+    MB_USER_EMAIL      default pm@homa.local
+    MB_USER_PASSWORD   default HomaPm1!
+    MB_DB_NAME         default Homa PM Analytics
 """
 
 from __future__ import annotations
@@ -40,8 +44,14 @@ class MetabaseClient:
 
     def __init__(self) -> None:
         self.host       = os.environ.get("MB_HOST", "http://localhost:3000").rstrip("/")
-        self.email      = os.environ.get("MB_ADMIN_EMAIL", "admin@homa.local")
-        self.password   = os.environ.get("MB_ADMIN_PASSWORD", "HomaAdmin1!")
+        # Accept both MB_USER_* (new) and MB_ADMIN_* (legacy) env var names
+        # so existing local setups keep working.
+        self.email      = (os.environ.get("MB_USER_EMAIL")
+                           or os.environ.get("MB_ADMIN_EMAIL")
+                           or "pm@homa.local")
+        self.password   = (os.environ.get("MB_USER_PASSWORD")
+                           or os.environ.get("MB_ADMIN_PASSWORD")
+                           or "HomaPm1!")
         self.db_name    = os.environ.get("MB_DB_NAME", "Homa PM Analytics")
         self._token: str | None = None
         self._db_id: int | None = None
